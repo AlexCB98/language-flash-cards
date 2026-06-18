@@ -4,21 +4,33 @@ import random
 
 data = pandas.read_csv('data/german_words.csv')
 words = data.to_dict(orient= 'records')
+current_card = {}
 
 def next_card():
-    card = random.choice(words)
-    canvas.itemconfig(card_title, text= 'German')
-    canvas.itemconfig(card_word, text= card['German'])
+    global current_card, flip_timer
+    window.after_cancel(flip_timer)
+    current_card = random.choice(words)
+    canvas.itemconfig(card_title, text= 'German', fill= 'black')
+    canvas.itemconfig(card_word, text= current_card['German'], fill= 'black')
+    canvas.itemconfig(card_background, image=card_front_image)
+    flip_timer = window.after(3000, func=flip_card)
 
+def flip_card():
+    canvas.itemconfig(card_title, text= 'English', fill= 'white')
+    canvas.itemconfig(card_word, text= current_card['English'], fill= 'white')
+    canvas.itemconfig(card_background, image= card_back_image)
 
 window = tk.Tk()
 window.title('Flashcards - German/English')
 window.minsize(width=900, height=640)
 window.config(padx=50, pady=50, bg="#B1DDC6")
 
+flip_timer = window.after(3000, func= flip_card)
+
 canvas = tk.Canvas(width=800, height=530)
 card_front_image = tk.PhotoImage(file='images/card_front.png')
-canvas.create_image(400, 265, image=card_front_image)
+card_back_image = tk.PhotoImage(file= 'images/card_back.png')
+card_background = canvas.create_image(400, 265, image=card_front_image)
 
 card_title = canvas.create_text(400, 100, text= '', font= ('Arial', 40, 'italic'))
 card_word = canvas.create_text(400, 265, text= '', font= ('Arial', 70, 'bold'))
